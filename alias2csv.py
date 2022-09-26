@@ -2,10 +2,11 @@ def process(line):
     """Reformat a line from mutt-alias to csv.
 
     Assumes following format:
-    'alias NICK_NAME FIRST_NAME LAST_NAME <EMAIL>'
+    'alias NICK_NAME FIRST_NAMEs LAST_NAME <EMAIL>'
     """
-    alias_literal, nick, first, last, mail = line.split(" ")
+    alias_literal, nick, *firsts, last, mail = line.split(" ")
     smail = mail.strip("><")
+    first = " ".join(firsts)
     return ",".join([first, last, smail, nick])
 
 
@@ -33,7 +34,7 @@ def main():
     with open(OUTPUT_FNAME, "w") as handler:
         handler.write(gen_output(data))
 
-    print("All good, output to:", OUTPUT_FNAME)
+    print("Finished, output to:", OUTPUT_FNAME)
 
 
 if __name__ == "__main__":
