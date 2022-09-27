@@ -4,7 +4,7 @@ def process(line):
     Assumes following format:
     'alias NICK_NAME FIRST_NAMEs LAST_NAME <EMAIL>'
     """
-    alias_literal, nick, *firsts, last, mail = line.split(" ")
+    alias_literal, nick, *firsts, last, mail = line.strip().split(" ")
     smail = mail.strip("><")
     first = " ".join(firsts)
     return ",".join([first, last, smail, nick])
@@ -19,7 +19,8 @@ def gen_output(data):
         try:
             header.append(process(line))
         except Exception as ex:
-            print(f"ERROR: '{ex}'\nSkippd line {idx}:\t'{line}'")
+            continue
+            #  print(f"ERROR: '{ex}'\nSkippd line {idx}:\t'{line}'")
 
     return "\n".join(header)
 
@@ -37,5 +38,27 @@ def main():
     print("Finished, output to:", OUTPUT_FNAME)
 
 
+def test():
+    data = "\n".join(
+        [
+            "alias phil Philipp Gaukler <pg@cif.core.net>",  # valid line
+            "alias bert Bertram Chanson <bc@pro.vault.io>",  # valid line
+            "INVALID LINE",  # skipped
+            "    alias james William Archibald James Jr. Walterson <archi@who.the.not>",
+            # leading whitespace gets stripped
+        ]
+    )
+    expected = (
+        "first name,last name,email-address,nickname\n"
+        "Philipp,Gaukler,pg@cif.core.net,phil\n"
+        "Bertram,Chanson,bc@pro.vault.io,bert\n"
+        "William Archibald James Jr.,Walterson,archi@who.the.not,james"
+    )
+    processed = gen_output(data)
+    assert processed == expected, "Test failed!"
+    print("Passed!")
+
+
 if __name__ == "__main__":
     main()
+    #  test()
